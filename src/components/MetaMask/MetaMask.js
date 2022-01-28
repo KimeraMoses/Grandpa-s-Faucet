@@ -44,8 +44,6 @@ const MetaMask = () => {
   const uuid = user && user.uuid;
 
   const Address = useSelector((state) => state.auth.address);
-  // const Address_Local = localStorage.getItem("Address");
-
 
   const loadWeb3 = async () => {
     if (window.ethereum) {
@@ -61,18 +59,15 @@ const MetaMask = () => {
   };
 
   useEffect(() => {
-  if(account.length > 10){
-    console.log("navigate here",account)
-    createWallet(account)
-
-  }
-
+    if (account.length > 10) {
+      console.log("navigate here", account);
+      createWallet(account);
+    }
   }, [account]);
 
   const createWallet = (account) => {
     dispatch(CreateWallet(account, uuid, token, apiToken));
-    dispatch(isConnected(account))
-    // await Navigate("/transactions",{replace:true});
+    dispatch(isConnected(account));
   };
   const loadBlockchainData = async () => {
     setLoading(true);
@@ -99,7 +94,6 @@ const MetaMask = () => {
     const accounts = await web3.eth.getAccounts();
     setAccount(accounts[0]);
     const networkId = await web3.eth.net.getId();
-    // setLoading(false);
     setNetworkid(networkId);
 
     if (networkId === config.ETHEREUM_CHAINID) {
@@ -109,34 +103,24 @@ const MetaMask = () => {
     } else {
       // window.alert(" switch to  Matic or Ethereum network");
     }
-    console.log("the accounts is",accounts[0])
+    console.log("the accounts is", accounts[0]);
 
-    if(accounts ){
-      localStorage.setItem("Address", accounts[0])
-      // dispatch(CreateWallet(account, uuid, token, apiToken));
-      console.log("the state",account)
-      // window.reload()
-
+    if (accounts) {
+      localStorage.setItem("Address", accounts[0]);
+      console.log("the state", account);
     }
   };
   const initConnection = async () => {
-   await  loadWeb3();
+    await loadWeb3();
     await loadBlockchainData();
-     
-    
   };
 
   return (
-    <Button onClick={()=>{
-      initConnection()
-
-      // Navigate("/transactions",{replace:true});
-      // console.log("the state",account)
-
-      
-      
-      }}>
-       
+    <Button
+      onClick={() => {
+        initConnection();
+      }}
+    >
       {loading ? `Connecting...` : `Connect MetaMask Wallet`}
     </Button>
   );

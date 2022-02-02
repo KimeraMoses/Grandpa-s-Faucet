@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { isConnected } from "../../../store/Slices/authSlice";
 import { CreateTransaction } from "../../../store/Actions/TransactionsActions";
 import { Alert } from "@material-ui/lab";
+import { useNavigate } from "react-router-dom";
 
 const Transaction = (props) => {
   const dispatch = useDispatch();
-
   const wallet = useSelector((state) => state.auth.wallet);
   const { apiToken, token } = useSelector((state) => state.auth);
   const Faucets = useSelector((state) => state.transactions.faucets);
@@ -17,6 +17,8 @@ const Transaction = (props) => {
   const [userAddress, setUserAddress] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     amount: "",
     faucet: "",
@@ -26,11 +28,18 @@ const Transaction = (props) => {
   const handleOnChange = (event) => {
     const { name, value } = event.target;
     setValues({ ...values, [name]: event.target.value });
-    setError("")
-    setMessage("")
+    setError("");
+    setMessage("");
   };
   const wallet_uuid = wallet && wallet.uuid;
-  console.log(wallet_uuid);
+  useEffect(() => {
+    if (Faucets && Faucets.length > 0) {
+      setValues({
+        ...values,
+        faucet: Faucets && Faucets[0] && Faucets[0].uuid,
+      });
+    }
+  }, [Faucets]);
 
   const selectedFaucet =
     Faucets && Faucets.filter((faucet) => faucet.uuid === values.faucet)[0];
@@ -54,7 +63,8 @@ const Transaction = (props) => {
       return setError("Please enter the amount to continue");
     }
     try {
-      setError("")
+      setError("");
+      setLoading(true);
       await dispatch(
         CreateTransaction(
           wallet_uuid,
@@ -64,10 +74,15 @@ const Transaction = (props) => {
           token
         )
       );
+      setLoading(false);
+
       setValues({ ...values, amount: "" });
       setMessage("Transaction created successfuly");
+      navigate("/transaction-success");
     } catch {
+      setLoading(false);
       setError("Failed to create transaction!");
+      navigate("/transaction-fail");
     }
   };
 
@@ -95,6 +110,7 @@ const Transaction = (props) => {
   useEffect(() => {
     getAddress();
   }, []);
+  useEffect(() => {}, [wallet]);
 
   return (
     <div className="grandpa__transaction_wrapper">
@@ -121,6 +137,7 @@ const Transaction = (props) => {
             onChange={handleOnChange}
             name="userAddress"
             className="grandpa__input_field"
+            disabled
           />
           <div className="grandpa__multi_column_fields_wrapper">
             <select
@@ -147,8 +164,8 @@ const Transaction = (props) => {
               className="grandpa__multi_column_field"
             />
           </div>
-          <Button type="submit" disabled={invalidData}>
-            Continue
+          <Button type="submit" disabled={invalidData || loading}>
+            {loading ? `creating...` : `continue`}
           </Button>
         </form>
       </div>

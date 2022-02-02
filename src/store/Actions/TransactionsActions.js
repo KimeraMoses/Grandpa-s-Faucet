@@ -60,6 +60,9 @@ export const CreateTransaction = (
 ) => {
   return async (dispatch) => {
     dispatch(createTransactionPending());
+    console.log("From create transaction",wallet_uuid,
+    amount,
+    token_uuid,)
     const response = await fetch(`${baseUrl}/transaction/`, {
       method: "POST",
       body: JSON.stringify({

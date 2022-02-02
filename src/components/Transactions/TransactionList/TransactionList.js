@@ -8,7 +8,7 @@ const TransactionList = () => {
   const isLoading = useSelector(state=>state.transactions.isLoading);
 
   const TransactionCard = (props) => {
-    const { hashValue, ammount } = props;
+    const { hashValue, amount,name } = props;
     return (
       <div className="grandpa__transaction__card_wrapper">
         {isLoading ? (
@@ -16,7 +16,7 @@ const TransactionList = () => {
         ) : (
           <>
             <div className="grandpa__transaction_token">{hashValue}</div>
-            <div className="grandpa__transaction_amount">{ammount} BNB</div>
+            <div className="grandpa__transaction_amount">{amount} {name}</div>
           </>
         )}
       </div>
@@ -35,7 +35,8 @@ const TransactionList = () => {
             return (
               <TransactionCard
                 hashValue={transaction.hash}
-                ammount={transaction.amount}
+                amount={transaction.amount}
+                name={transaction.token.name}
               />
             );
           })}
